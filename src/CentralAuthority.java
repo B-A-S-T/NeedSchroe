@@ -66,7 +66,7 @@ public class CentralAuthority implements Runnable{
 		}
 	}
 	
-	public static void main(String args[]){
+	public static void main(String args[]) throws Exception{
 		CentralAuthority centralServer = null;
 		if(args.length != 1)
 			System.out.println("Failed to provide port number.\n "
