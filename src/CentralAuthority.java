@@ -19,7 +19,6 @@ public class CentralAuthority implements Runnable{
 		this.threadName = threadName;
 		numClients = 0;
 		try{
-			Key key = generateKeyFromString("hey");
 			serverSocket = new ServerSocket(port);
 			startServerThread();
 			System.out.println();

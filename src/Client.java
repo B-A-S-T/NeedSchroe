@@ -9,12 +9,25 @@ import java.util.Scanner;
 		private Socket sock = null;
 		private DataInputStream inStream = null;
 		private DataOutputStream outStream = null;
+		private Encryption crypt = null;
+		private NeedhamSchroeder nsProto = null;
 		private Key ClientCentralKey;
 		
 	public Client(String serverName, int portNumber) {
 			super();
 			this.serverName = serverName;
 			this.portNumber = portNumber;
+			crypt = new Encryption("Placeholder Key");
+			nsProto = new NeedhamSchroeder();
+			try {
+				sock = new Socket(this.serverName, this.portNumber);
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			ClientCentralKey = getKey();
 		}
 		
@@ -38,51 +51,71 @@ import java.util.Scanner;
 		Scanner reader = new Scanner(System.in);
 		String request;
 		String reply;
-		System.out.println("Welcome to Needham-Schroeder Protocol simulator, new user? 1 if so 0 if not");
-			int usertype = reader.nextInt();
-		if(usertype == 1){
-			System.out.print("----Create New Account----\nEnter a username: ");
-			String username = reader.nextLine();
-			System.out.print("Enter a password: ");
-			String password = reader.nextLine();
-			request = "1 @" + username + "&" + password;
-			send(request);
-			receive();
-		}
-		else{
-			System.out.print("----Account Login----\nEnter username: ");
-			String username = reader.nextLine();
-			System.out.print("Enter password: ");
-			String password = reader.nextLine();
-			request = "0 @" + username + "&" + password;
-			send(request);
-			if(!receive().contains(":^)")){
-				System.out.println("Invalid user...Exiting");
-				System.exit(0);
-			}
-			
-			System.out.println("Enter option name: \n"
-					+ "NSC: New secure connection \n"
-					+ "LCSC: List current secure connections\n"
-					+ "SOSC: Send over secure connection(Have Connection ID Ready");
-			request = reader.nextLine();
-			switch(request){
+		System.out.println("Welcome to Needham-Schroeder Protocol simulator");
+		System.out.print("----Account Login----\nEnter username: ");
+		String username = reader.nextLine();
+		request = "0 @" + username;
+		// Sends to server, writes name and IP to file
+		send(request);
+		// Get option
+		System.out.println("Enter option name: \n"
+			+ "NSC: New secure connection \n"
+			+ "LCSC: List current secure connections\n"
+			+ "SOSC: Send over secure connection(Have Connection ID Ready");
+		request = reader.nextLine();
+		switch(request){
 			case "NSC":
-				System.out.println("");
+				NSC();
 				break;
 			case "LCSC":
-				
+				LCSC();
 				break;
 			case "SOSC":
-				
+				SOSC();
 				break;
 			default:
 				System.out.println("Failed to provide a correct option");
-			
 			}
 			
 		}
+	
+	private void SOSC() {
+		// TODO Auto-generated method stub
+		
 	}
+
+
+	private void LCSC() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private void NSC() {
+		Scanner reader = new Scanner(System.in);
+		String source, target;
+		int nonse;
+		System.out.println("Creating new secure connection: \n"
+				+ "Enter your username, who you wish to talk to"
+				+ ", and your nonse.");
+		source = reader.nextLine();
+		target = reader.nextLine();
+		nonse = reader.nextInt();
+		String request = "NSC @" + source + "%" + target + "&" + nonse;
+		System.out.println("Unencrypted: " + request);
+		System.out.println("Encrypted: " + crypt.encrypt(request));
+		send(crypt.encrypt(request));
+		String reply = receive();
+		String decryptedReply = crypt.decrypt(reply);
+		System.out.println("Encrypted: " + reply);
+		System.out.println("Unencrypted: " + decryptedReply);
+		NeScInfo info = nsProto.stage1(nonse, sock, decryptedReply);
+		if(info == null){
+			System.out.println("Nonse did not match, could be an attack.");
+			System.exit(0);
+		}
+	}
+	
 
 	private void send(String request) {
 		try{
