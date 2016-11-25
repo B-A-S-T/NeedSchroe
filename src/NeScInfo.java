@@ -5,12 +5,19 @@ public class NeScInfo {
 	private String Target;
 	private String TargetData;
 	public int Nonse;
+	private String serverPacket;
 	
 	public String getKey() {
 		return Key;
 	}
 	public void setKey(String key) {
 		Key = key;
+	}
+	public String getServerPacket() {
+		return serverPacket;
+	}
+	public void setServerPacket(String serverPacket) {
+		this.serverPacket = serverPacket;
 	}
 	public String getSource() {
 		return source;

@@ -4,6 +4,7 @@ import java.io.*;
 public class CentralAuthorityThread extends Thread{
 
 	private int ID = -1;
+	private String username;
 	private Socket sock = null;
 	private CentralAuthority centralServ = null;
 	private String request = null;
@@ -16,6 +17,12 @@ public class CentralAuthorityThread extends Thread{
 		this.sock = accept;
 		ID = sock.getPort();
 	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
 	public int getID(){
 		return this.ID;
 	}
@@ -25,10 +32,9 @@ public class CentralAuthorityThread extends Thread{
 	public void run(){
 		boolean sessionFinished = false;
 		while(!sessionFinished){
-			System.out.println("Hey there in run! : qweqwe");
 			try{
 				request = in.readUTF();
-				System.out.println("Hey there in run! : " + request);
+				System.out.println("Hey there in run! : " + ID);
 				centralServ.processRequest(ID, request);	
 			}catch(IOException exception){
 				System.out.println("Failed to receive" + exception);
@@ -50,8 +56,12 @@ public class CentralAuthorityThread extends Thread{
 	}
 	
 	public void send(String string) {
-		// TODO Auto-generated method stub
-		
+		try{
+			out.writeUTF(string);
+			out.flush();
+		}catch(IOException exception){
+			System.out.println("Failed to send request" + exception);
+		}
 	}
 
 

@@ -14,9 +14,20 @@ import java.util.Scanner;
 		
 	public Client(String serverName, int portNumber) {
 			super();
+			char [] a = new char[50];
 			this.serverName = serverName;
 			this.portNumber = portNumber;
-			crypt = new Encryption("Placeholder Key");
+				try {
+					FileReader fileReader = new FileReader("TOPSECRET.txt");
+					try {
+						fileReader.read(a);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+			crypt = new Encryption(new String(a).trim());
 			nsProto = new NeedhamSchroeder(0);
 			try {
 				sock = new Socket(this.serverName, this.portNumber);
@@ -29,22 +40,6 @@ import java.util.Scanner;
 			}
 		}
 		
-
-	private Key getKey() {
-		try (BufferedReader br = new BufferedReader(new FileReader("C:\\TOPSECRET.txt")))
-		{
-			String sCurrentLine;
-			while ((sCurrentLine = br.readLine()) != null) {
-				System.out.println(sCurrentLine);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return null;
-	}
-
-
 	private void displayInterface() {
 		Scanner reader = new Scanner(System.in);
 		String request;
@@ -100,15 +95,13 @@ import java.util.Scanner;
 		source = reader.nextLine();
 		target = reader.nextLine();
 		nonse = reader.nextInt();
-		String request = "NSC @" + source + "%" + target + "&" + nonse;
+		String request = "NSC @" + source + "%" + target + "#" + nonse;
 		System.out.println("Unencrypted: " + request);
-		System.out.println("Encrypted: " + crypt.encrypt(request));
-		send(crypt.encrypt(request));
+		send(request);
 		String reply = receive();
 		String decryptedReply = crypt.decrypt(reply);
-		System.out.println("Encrypted: " + reply);
 		System.out.println("Unencrypted: " + decryptedReply);
-		NeScInfo info = nsProto.stage1(nonse, decryptedReply);
+		NeScInfo info = nsProto.stage1(nonse, decryptedReply, crypt, null);
 		
 		if(info == null){
 			System.out.println("Nonse did not match, could be an attack.");

@@ -2,18 +2,28 @@
 public class Encryption {
 	String key;
 
-	public Encryption(String string) {
-		// TODO Auto-generated constructor stub
+	public Encryption(String key) {
+			this.key = key;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key; 
 	}
 
 	public String encrypt(String request) {
-		// TODO Auto-generated method stub
-		return null;
+		char encrypted[] = request.toCharArray();
+		for(int i = 0; i < request.length(); i++){
+			encrypted[i] = (char) ((key.charAt(i % key.length())) ^ encrypted[i]);
+		}
+		return new String(encrypted);
 	}
 
 	public String decrypt(String reply) {
-		// TODO Auto-generated method stub
-		return null;
+		return encrypt(reply);
 	}
 
 }
