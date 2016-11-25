@@ -32,6 +32,12 @@ public class CentralAuthority implements Runnable{
 			try{
 				System.out.println("Waiting for clients to connect ...");
 				newClientThread(serverSocket.accept());
+				try {
+					thread.sleep(10000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			catch(IOException exception){
 				System.out.println("Failed to accept" + exception);
@@ -45,6 +51,7 @@ public class CentralAuthority implements Runnable{
 		newClients[numClients] = new CentralAuthorityThread(this, accept);
 		try{
 			newClients[numClients].openBuffer();
+			System.out.println("Starting new Thread!\n\n");
 			newClients[numClients].start();
 			numClients++;
 		} catch(IOException exception)
@@ -89,11 +96,17 @@ public class CentralAuthority implements Runnable{
 
 
 	public synchronized void processRequest(int id, String request) {
+		System.out.println("Hi from thread process");
+		String IP = newClients[getClientById(id) + 1].getIP();
+		System.out.println("Hello there!" + IP);
 		if(request == "quit"){
 			newClients[getClientById(id)].send("Thank you.");
 			removeClient(id);
 		}
-		
+		if(request.indexOf('0') == 0){
+			String username = request.substring(3, request.length() - 1);
+			System.out.println("The user is :" + username + "and the IP is" + IP);
+		}
 	}
 
 

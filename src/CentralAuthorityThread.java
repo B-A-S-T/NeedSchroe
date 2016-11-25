@@ -19,16 +19,17 @@ public class CentralAuthorityThread extends Thread{
 	public int getID(){
 		return this.ID;
 	}
-
+	public String getIP(){
+		return "" + sock.getInetAddress();
+	}
 	public void run(){
 		boolean sessionFinished = false;
 		while(!sessionFinished){
+			System.out.println("Hey there in run! : qweqwe");
 			try{
 				request = in.readUTF();
-				centralServ.processRequest(ID, request);
-				if(request == "quit"){
-					sessionFinished = true;
-				}	
+				System.out.println("Hey there in run! : " + request);
+				centralServ.processRequest(ID, request);	
 			}catch(IOException exception){
 				System.out.println("Failed to receive" + exception);
 				centralServ.removeClient(ID);

@@ -11,14 +11,13 @@ import java.util.Scanner;
 		private DataOutputStream outStream = null;
 		private Encryption crypt = null;
 		private NeedhamSchroeder nsProto = null;
-		private Key ClientCentralKey;
 		
 	public Client(String serverName, int portNumber) {
 			super();
 			this.serverName = serverName;
 			this.portNumber = portNumber;
 			crypt = new Encryption("Placeholder Key");
-			nsProto = new NeedhamSchroeder();
+			nsProto = new NeedhamSchroeder(0);
 			try {
 				sock = new Socket(this.serverName, this.portNumber);
 			} catch (UnknownHostException e) {
@@ -28,7 +27,6 @@ import java.util.Scanner;
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			ClientCentralKey = getKey();
 		}
 		
 
@@ -56,6 +54,7 @@ import java.util.Scanner;
 		String username = reader.nextLine();
 		request = "0 @" + username;
 		// Sends to server, writes name and IP to file
+		System.out.println("Just sent!\n\n");
 		send(request);
 		// Get option
 		System.out.println("Enter option name: \n"
@@ -109,7 +108,8 @@ import java.util.Scanner;
 		String decryptedReply = crypt.decrypt(reply);
 		System.out.println("Encrypted: " + reply);
 		System.out.println("Unencrypted: " + decryptedReply);
-		NeScInfo info = nsProto.stage1(nonse, sock, decryptedReply);
+		NeScInfo info = nsProto.stage1(nonse, decryptedReply);
+		
 		if(info == null){
 			System.out.println("Nonse did not match, could be an attack.");
 			System.exit(0);
@@ -120,6 +120,7 @@ import java.util.Scanner;
 	private void send(String request) {
 		try{
 			outStream.writeUTF(request);
+			outStream.flush();
 		}catch(IOException exception){
 			System.out.println("Failed to send request" + exception);
 		}
