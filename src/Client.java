@@ -11,9 +11,12 @@ import java.util.Scanner;
 		private DataOutputStream outStream = null;
 		private Encryption crypt = null;
 		private NeedhamSchroeder nsProto = null;
+		private SecureConnection secureConn[] = new SecureConnection[19];
+		private int numConn;
 		
 	public Client(String serverName, int portNumber) {
 			super();
+			numConn = 0;
 			char [] a = new char[50];
 			this.serverName = serverName;
 			this.portNumber = portNumber;
@@ -52,24 +55,26 @@ import java.util.Scanner;
 		System.out.println("Just sent!\n\n");
 		send(request);
 		// Get option
-		System.out.println("Enter option name: \n"
-			+ "NSC: New secure connection \n"
-			+ "LCSC: List current secure connections\n"
-			+ "SOSC: Send over secure connection(Have Connection ID Ready");
-		request = reader.nextLine();
-		switch(request){
-			case "NSC":
-				NSC();
-				break;
-			case "LCSC":
-				LCSC();
-				break;
-			case "SOSC":
-				SOSC();
-				break;
-			default:
-				System.out.println("Failed to provide a correct option");
+		while(!request.contains("quit")){
+			System.out.println("Enter option name: \n"
+				+ "NSC: New secure connection \n"
+				+ "LCSC: List current secure connections\n"
+				+ "SOSC: Send over secure connection(Have Connection Name Ready");
+			request = reader.nextLine();
+			switch(request){
+				case "NSC":
+					NSC();
+					break;
+				case "LCSC":
+					LCSC();
+					break;
+				case "SOSC":
+					SOSC();
+					break;
+				default:
+					System.out.println("Failed to provide a correct option");
 			}
+		}
 			
 		}
 	
@@ -80,8 +85,11 @@ import java.util.Scanner;
 
 
 	private void LCSC() {
-		// TODO Auto-generated method stub
-		
+		System.out.println("----Secure Connections Available----");
+		for(int i = 0; i < numConn; i++){
+			System.out.println(secureConn[i].getTarget());
+		}
+		System.out.println("\n\n\n");
 	}
 
 
@@ -102,11 +110,13 @@ import java.util.Scanner;
 		String decryptedReply = crypt.decrypt(reply);
 		System.out.println("Unencrypted: " + decryptedReply);
 		NeScInfo info = nsProto.stage1(nonse, decryptedReply, crypt, null);
-		
-		if(info == null){
-			System.out.println("Nonse did not match, could be an attack.");
-			System.exit(0);
-		}
+		send("IP %" + info.getTarget());
+		String targetIP = receive();
+		System.out.println(targetIP);
+		secureConn[numConn] = 
+				new SecureConnection(info.getTarget(), 
+						targetIP, info.getKey(), "10059", info.getTargetData());
+		numConn++;
 	}
 	
 

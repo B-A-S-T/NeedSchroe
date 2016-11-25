@@ -140,9 +140,22 @@ public class CentralAuthority implements Runnable{
 			System.out.println(info.getServerPacket());
 			newClients[getClientById(id)].send(info.getServerPacket());
 		}
+		if(request.contains("IP ")){
+			String target = request.substring(request.indexOf('%') + 1, request.length());
+			newClients[getClientById(id)].send(getIpByUser(target));
+		}
 	}
 
-
+	
+	private String getIpByUser(String target){
+		for(int i = 0; i < numClients; i++){
+			if(newClients[i].getUsername().contains(target)){
+				return (newClients[i].getIP());
+			}
+		}
+		return null;
+	}
+	
 	private String getKeyByUser(String substring) {
 		for(int i = 0; i < userCount; i ++){
 			if(userKeys[i][0].contains(substring)){
