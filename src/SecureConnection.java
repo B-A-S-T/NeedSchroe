@@ -4,9 +4,9 @@ public class SecureConnection {
 	private String IP;
 	private String Key;
 	private String TargetData;
-	private String Port;
+	private int Port;
 	
-	public SecureConnection(String target, String iP, String key, String port, String TargetData) {
+	public SecureConnection(String target, String iP, String key, int port, String TargetData) {
 		super();
 		Target = target;
 		IP = iP;
@@ -48,10 +48,10 @@ public class SecureConnection {
 	public void setKey(String key) {
 		Key = key;
 	}
-	public String getPort() {
+	public int getPort() {
 		return Port;
 	}
-	public void setPort(String port) {
+	public void setPort(int port) {
 		Port = port;
 	}
 }

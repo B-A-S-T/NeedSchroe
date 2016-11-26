@@ -1,11 +1,13 @@
 import java.io.*;
 import java.net.*;
 import java.security.*;
+import java.util.Random;
 import java.util.Scanner;
 
 	public class Client {
 		private String serverName;
 		private int portNumber;
+		private int listenPort;
 		private Socket sock = null;
 		private DataInputStream inStream = null;
 		private DataOutputStream outStream = null;
@@ -21,6 +23,7 @@ import java.util.Scanner;
 			char [] a = new char[50];
 			this.serverName = serverName;
 			this.portNumber = portNumber;
+			listenPort = generateListenPort();
 				try {
 					FileReader fileReader = new FileReader("TOPSECRET.txt");
 					try {
@@ -31,7 +34,7 @@ import java.util.Scanner;
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				}
-			passiveClient = new ClientPassive("10040", new String(a).trim());
+			passiveClient = new ClientPassive(listenPort, new String(a).trim());
 			crypt = new Encryption(new String(a).trim());
 			nsProto = new NeedhamSchroeder(0);
 			try {
@@ -52,7 +55,12 @@ import java.util.Scanner;
 		System.out.println("Welcome to Needham-Schroeder Protocol simulator");
 		System.out.print("----Account Login----\nEnter username: ");
 		String username = reader.nextLine();
-		request = "0 @" + username;
+		if(username.contains("John")){
+			passiveClient.setKey("Beers");
+			System.out.println("Set the key");
+		}
+		if(username.contains("Ian")){passiveClient.setKey("Feels");}
+		request = "0 @" + username + "*" + listenPort;
 		// Sends to server, writes name and IP to file
 		System.out.println("Just sent!\n\n");
 		send(request);
@@ -86,8 +94,9 @@ import java.util.Scanner;
 		String user = scan.nextLine();
 		int index = getUserIndex(user);
 		String ip = getIpByUser(user);
+		int port = secureConn[index].getPort();
 		try {
-			passiveClient.newCommunicationThread(new Socket(ip.substring(1, ip.length()), 10040), 1, secureConn[index].getTargetData());
+			passiveClient.newCommunicationThread(new Socket(ip.substring(1, ip.length()), port), 1, secureConn[index]);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -140,11 +149,13 @@ import java.util.Scanner;
 		System.out.println("Unencrypted: " + decryptedReply);
 		NeScInfo info = nsProto.stage1(nonse, decryptedReply, crypt, null);
 		send("IP %" + info.getTarget());
-		String targetIP = receive();
+		reply = receive();
+		String targetIP = reply.substring(0, reply.indexOf('*'));
+		int port = Integer.parseInt(reply.substring(reply.indexOf('*') + 1));
 		System.out.println(targetIP);
 		secureConn[numConn] = 
 				new SecureConnection(info.getTarget(), 
-						targetIP, info.getKey(), "10059", info.getTargetData());
+						targetIP, info.getKey(), port, info.getTargetData());
 		numConn++;
 	}
 	
@@ -184,5 +195,10 @@ import java.util.Scanner;
 	    	e.printStackTrace();
 	     }
 	}
-	
+	private int generateListenPort(){
+		Random rand = new Random();
+		int low = 2000;
+		int high = 65000;
+		return (rand.nextInt(high - low) + low);
+	}
 }

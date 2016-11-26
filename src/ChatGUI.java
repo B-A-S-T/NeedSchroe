@@ -11,23 +11,15 @@ public class ChatGUI extends JFrame implements ActionListener, WindowListener {
 	private JTextField letter;
 	private JButton send;
 	private JLabel label;
-	private Socket sock;
 	private ClientCommunicationThread comm = null;
-	private DataOutputStream outStream = null;
 	
-	public ChatGUI(ClientCommunicationThread newComm, Socket sock){
-		this.sock = sock;
-		try {
-			outStream = new DataOutputStream(new BufferedOutputStream(sock.getOutputStream()));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public ChatGUI(ClientCommunicationThread newComm){
+		comm = newComm;
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(400,400);
 		JPanel panel = new JPanel(); // the panel is not visible in output
 		label = new JLabel("Enter Text");
-		letter = new JTextField(10);// accepts upto 10 characters
+		letter = new JTextField(20);// accepts upto 10 characters
 		send = new JButton("Send");
 		panel.add(label);// Components Added using Flow Layout
 		panel.add(letter);
@@ -43,18 +35,10 @@ public class ChatGUI extends JFrame implements ActionListener, WindowListener {
 		message.setText(newMessage);
 	}
 	public void actionPerformed(ActionEvent e) {
-		String toSend = message.getText();
-		send(toSend);
+		String toSend = letter.getText();
+		comm.send(toSend);
 	}
-	public void send(String toSend) {
-		try {
-			outStream.writeUTF(toSend);
-			outStream.flush();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	}
+	
 	@Override
 	public void windowActivated(WindowEvent arg0) {
 	}

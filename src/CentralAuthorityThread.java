@@ -3,7 +3,15 @@ import java.io.*;
 
 public class CentralAuthorityThread extends Thread{
 
+	public int getListenPort() {
+		return listenPort;
+	}
+	public void setListenPort(int listenPort) {
+		this.listenPort = listenPort;
+	}
+
 	private int ID = -1;
+	private int listenPort;
 	private String username;
 	private Socket sock = null;
 	private CentralAuthority centralServ = null;

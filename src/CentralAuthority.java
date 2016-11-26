@@ -129,8 +129,10 @@ public class CentralAuthority implements Runnable{
 			removeClient(id);
 		}
 		if(request.indexOf('0') == 0){
-			String username = request.substring(3, request.length());
+			String username = request.substring(3, request.indexOf('*'));
+			int port = Integer.parseInt(request.substring(request.indexOf('*') + 1));
 			newClients[getClientById(id)].setUsername(username);
+			newClients[getClientById(id)].setListenPort(port);
 		}
 		if(request.contains("NSC ")){
 			String sourceKey = getKeyByUser(request.substring(request.indexOf('@') + 1, request.indexOf('%')));
@@ -141,7 +143,8 @@ public class CentralAuthority implements Runnable{
 		}
 		if(request.contains("IP ")){
 			String target = request.substring(request.indexOf('%') + 1, request.length());
-			newClients[getClientById(id)].send(getIpByUser(target));
+			String reply = getIpByUser(target) + "*" + newClients[getClientByUser(target)].getListenPort();
+			newClients[getClientById(id)].send(reply);
 		}
 	}
 
@@ -154,6 +157,15 @@ public class CentralAuthority implements Runnable{
 		}
 		return null;
 	}
+	
+	private int getClientByUser(String username){
+			for (int i = 0; i < numClients; i++){
+				if(newClients[i].getUsername().contains(username)){
+					return i;
+				}
+			}
+			return -1;
+		}
 	
 	private String getKeyByUser(String substring) {
 		for(int i = 0; i < userCount; i ++){

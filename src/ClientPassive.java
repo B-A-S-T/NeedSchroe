@@ -4,22 +4,22 @@ import java.net.*;
 public class ClientPassive implements Runnable{
 	private ServerSocket serverSock;
 	private Thread thread;
-	private String Port;
+	private int Port;
 	private ClientCommunicationThread[] CCs = new ClientCommunicationThread[10];
 	private int numClients;
 	private String serverKey;
 	private NeScInfo nescInfo = null;
 	
-	public ClientPassive(String port, String key) {
+	public ClientPassive(int listenPort, String key) {
 		super();
 		numClients = 0;
 		try {
-			this.serverSock = new ServerSocket(Integer.parseInt(port));
+			this.serverSock = new ServerSocket(listenPort);
 			startClientPassive();
 		} catch (NumberFormatException | IOException e) {
 			e.printStackTrace();
 		}
-		Port = port;
+		Port = listenPort;
 		serverKey = key;
 		
 	}
@@ -28,14 +28,18 @@ public class ClientPassive implements Runnable{
 		System.out.println(request);
 		if(request.contains("REQ0")){
 			nescInfo = nesc.stage2(request, new Encryption(serverKey));
-			
+			CCs[getClientById(id)].setNonse(nescInfo.getNonse());;
+			CCs[getClientById(id)].setSessionKey(nescInfo.getKey());
+			CCs[getClientById(id)].setUsername(nescInfo.getSource());
+			CCs[getClientById(id)].send("REQ1"+nescInfo.getServerPacket());
 		}
 		else if(request.contains("REQ1")){
-			boolean confirm = nesc.stage3(nescInfo, request);
-			if(!confirm){
-				System.out.println("Failed to verify Nonse");
-				removeClient(id);
-			}
+			String sessionKey = CCs[getClientById(id)].getSessionKey();
+			String nonse = nesc.stage3(sessionKey, request);
+			CCs[getClientById(id)].send("REQ2"+nonse);
+			
+		}
+		else if(request.contains("REQ2")){
 		}
 	}
 	public void run() {
@@ -55,8 +59,8 @@ public class ClientPassive implements Runnable{
 			thread.start();
 		}
 	}
-	public void newCommunicationThread(Socket sock, int option, String targetData) {
-		CCs[numClients] = new ClientCommunicationThread(this, sock, option, targetData);
+	public void newCommunicationThread(Socket sock, int option, SecureConnection secureConn) {
+		CCs[numClients] = new ClientCommunicationThread(this, sock, option, secureConn);
 		try{
 			CCs[numClients].openBuffer();
 			CCs[numClients].start();
@@ -99,5 +103,8 @@ public class ClientPassive implements Runnable{
 	public void processRequest(int id, String request) {
 		// TODO Auto-generated method stub
 		
+	}
+	public void setKey(String key) {
+		serverKey = key;
 	}
 }

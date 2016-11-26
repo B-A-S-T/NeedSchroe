@@ -42,20 +42,29 @@ public class NeedhamSchroeder {
 	}
 
 	public NeScInfo stage2(String request, Encryption encryption) {
+		System.out.println(request + "\n\n");
 		String unencrypted = encryption.decrypt(request.substring(5, request.length()));
+		System.out.println(unencrypted + "\n\n" + unencrypted);
 		NeScInfo info = new NeScInfo();
-		info.setSource(unencrypted.substring(unencrypted.indexOf('@') + 1, unencrypted.indexOf('~')));
-		info.setKey(unencrypted.substring(unencrypted.indexOf('~') + 1, unencrypted.length()));
+		info.setSource(unencrypted.substring(unencrypted.indexOf('@') + 1, unencrypted.indexOf('|')));
+		info.setKey(unencrypted.substring(unencrypted.indexOf('|') + 1, unencrypted.length()));
 		Encryption newEncryption = new Encryption(info.getKey());
 		info.setNonse(generateNonse());
 		info.setServerPacket(newEncryption.encrypt("" + info.getNonse()));
 		
 		return info;
 	}
-	public boolean stage3(NeScInfo info, String request) {
-		Encryption encryption = new Encryption(info.getKey());
+	public String stage3(String key, String request) {
+		Encryption encryption = new Encryption(key);
 		String unencrypted = encryption.decrypt(request.substring(4, request.length()));
-		if(info.getNonse() == Integer.parseInt(unencrypted)){
+		int newNonse = (Integer.parseInt(unencrypted)) - 1;
+		return encryption.encrypt("" + newNonse);
+	}
+	
+	public boolean Stage4(String key, String request, int nonse) {
+		Encryption encryption = new Encryption(key);
+		String unencrypted = encryption.decrypt(request.substring(4, request.length()));
+		if(nonse == Integer.parseInt(unencrypted)){
 			return true;
 		}
 		return false;

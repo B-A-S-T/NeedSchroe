@@ -15,13 +15,21 @@ public class ClientCommunicationThread extends Thread{
 	private int option;
 	private ChatGUI gui = null;
 	private String targetData;
+	private String sessionKey;
+	private int nonse;
 
+	public int getNonse() {
+		return nonse;
+	}
+	public void setNonse(int nonse) {
+		this.nonse = nonse;
+	}
 	public void run(){
 		boolean sessionFinished = false;
 		String request = null;
 		if(option == 1){
 			request = "REQ0 " + targetData;
-			gui.send(request);
+			send(request);
 		}
 		System.out.println(request + "\n\n");
 		while(!sessionFinished){
@@ -41,13 +49,15 @@ public class ClientCommunicationThread extends Thread{
 	public int getID(){
 		return id;
 	}
-	public ClientCommunicationThread(ClientPassive clientPassive, Socket sock, int option, String targetData) {
+	public ClientCommunicationThread(ClientPassive clientPassive, Socket sock, int option, SecureConnection secureConn) {
 		id = sock.getPort();
 		passive = clientPassive;
 		this.sock = sock;
-		gui = new ChatGUI(this, sock);
+		gui = new ChatGUI(this);
 		this.option = option;
-		this.targetData = targetData;
+		targetData = secureConn.getTargetData();
+		sessionKey = secureConn.getKey();
+		username = secureConn.getTarget();
 	}
 
 	public void openBuffer() throws IOException {
@@ -61,6 +71,24 @@ public class ClientCommunicationThread extends Thread{
 	}
 	public void remove(){
 		passive.removeClient(id);
+	}
+	public void setSessionKey(String key){
+		sessionKey = key;
+	}
+	public void send(String toSend) {
+		try {
+			out.writeUTF(toSend);
+			out.flush();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+	public void setUsername(String user) {
+		username = user;	
+	}
+	public String getSessionKey() {
+		return sessionKey;
 	}
 
 }
