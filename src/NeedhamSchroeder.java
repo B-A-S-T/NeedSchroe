@@ -41,6 +41,33 @@ public class NeedhamSchroeder {
 		return info;
 	}
 
+	public NeScInfo stage2(String request, Encryption encryption) {
+		String unencrypted = encryption.decrypt(request.substring(5, request.length()));
+		NeScInfo info = new NeScInfo();
+		info.setSource(unencrypted.substring(unencrypted.indexOf('@') + 1, unencrypted.indexOf('~')));
+		info.setKey(unencrypted.substring(unencrypted.indexOf('~') + 1, unencrypted.length()));
+		Encryption newEncryption = new Encryption(info.getKey());
+		info.setNonse(generateNonse());
+		info.setServerPacket(newEncryption.encrypt("" + info.getNonse()));
+		
+		return info;
+	}
+	public boolean stage3(NeScInfo info, String request) {
+		Encryption encryption = new Encryption(info.getKey());
+		String unencrypted = encryption.decrypt(request.substring(4, request.length()));
+		if(info.getNonse() == Integer.parseInt(unencrypted)){
+			return true;
+		}
+		return false;
+	}
+	
+	private int generateNonse() {
+		Random rand = new Random();
+		int l = 1;
+		int h = 10000;
+		return (rand.nextInt(h-l) + l);
+	}
+
 	public int getType() {
 		return type;
 	}
@@ -60,5 +87,4 @@ public class NeedhamSchroeder {
 		}
 		return newKey;
 	}
-
 }

@@ -34,7 +34,6 @@ public class CentralAuthorityThread extends Thread{
 		while(!sessionFinished){
 			try{
 				request = in.readUTF();
-				System.out.println("Hey there in run! : " + ID);
 				centralServ.processRequest(ID, request);	
 			}catch(IOException exception){
 				System.out.println("Failed to receive" + exception);

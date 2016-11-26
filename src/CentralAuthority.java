@@ -77,7 +77,6 @@ public class CentralAuthority implements Runnable{
 		newClients[numClients] = new CentralAuthorityThread(this, accept);
 		try{
 			newClients[numClients].openBuffer();
-			System.out.println("Starting new Thread!\n\n");
 			newClients[numClients].start();
 			numClients++;
 		} catch(IOException exception)

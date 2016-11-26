@@ -13,6 +13,7 @@ import java.util.Scanner;
 		private NeedhamSchroeder nsProto = null;
 		private SecureConnection secureConn[] = new SecureConnection[19];
 		private int numConn;
+		private ClientPassive passiveClient = null;
 		
 	public Client(String serverName, int portNumber) {
 			super();
@@ -30,6 +31,7 @@ import java.util.Scanner;
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				}
+			passiveClient = new ClientPassive("10040", new String(a).trim());
 			crypt = new Encryption(new String(a).trim());
 			nsProto = new NeedhamSchroeder(0);
 			try {
@@ -79,8 +81,34 @@ import java.util.Scanner;
 		}
 	
 	private void SOSC() {
-		// TODO Auto-generated method stub
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Enter the username of connection: ");
+		String user = scan.nextLine();
+		int index = getUserIndex(user);
+		String ip = getIpByUser(user);
+		try {
+			passiveClient.newCommunicationThread(new Socket(ip.substring(1, ip.length()), 10040), 1, secureConn[index].getTargetData());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
+	}
+	private String getIpByUser(String user){
+		for(int i = 0; i < numConn; i++){
+			if(secureConn[i].getTarget().contains(user)){
+				return secureConn[i].getIP();
+			}
+		}
+		return null;
+	}
+	private int getUserIndex(String user){
+		for(int i = 0; i < numConn; i++){
+			if(secureConn[i].getTarget().contains(user)){
+				return i;
+			}
+		}
+		return -1;
 	}
 
 
@@ -103,6 +131,7 @@ import java.util.Scanner;
 		source = reader.nextLine();
 		target = reader.nextLine();
 		nonse = reader.nextInt();
+		if(source.contains("John")){crypt = new Encryption("Beers");}
 		String request = "NSC @" + source + "%" + target + "#" + nonse;
 		System.out.println("Unencrypted: " + request);
 		send(request);
