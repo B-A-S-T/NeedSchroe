@@ -60,6 +60,7 @@ import java.util.Scanner;
 			System.out.println("Set the key");
 		}
 		if(username.contains("Ian")){passiveClient.setKey("Feels");}
+		if(username.contains("Kayse")){passiveClient.setKey("Bacon");}
 		request = "0 @" + username + "*" + listenPort;
 		// Sends to server, writes name and IP to file
 		System.out.println("Just sent!\n\n");

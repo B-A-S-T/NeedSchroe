@@ -25,8 +25,9 @@ public class ClientPassive implements Runnable{
 	}
 	public synchronized void verify(int id, String request) {
 		NeedhamSchroeder nesc = new NeedhamSchroeder(0);
-		System.out.println(request);
+		System.out.println("Hi from Verify!\n");
 		if(request.contains("REQ0")){
+			System.out.println("Hi from Verify REQ0!\n");
 			nescInfo = nesc.stage2(request, new Encryption(serverKey));
 			CCs[getClientById(id)].setNonse(nescInfo.getNonse());;
 			CCs[getClientById(id)].setSessionKey(nescInfo.getKey());
@@ -34,12 +35,29 @@ public class ClientPassive implements Runnable{
 			CCs[getClientById(id)].send("REQ1"+nescInfo.getServerPacket());
 		}
 		else if(request.contains("REQ1")){
+			System.out.println("Hi from Verify REQ1!\n");
 			String sessionKey = CCs[getClientById(id)].getSessionKey();
 			String nonse = nesc.stage3(sessionKey, request);
 			CCs[getClientById(id)].send("REQ2"+nonse);
+			System.out.println("Successfully sent from REQ1");
 			
 		}
 		else if(request.contains("REQ2")){
+			System.out.println("Hi from Verify REQ2!\n");
+			boolean verified = nesc.stage4(CCs[getClientById(id)].getSessionKey(), request, CCs[getClientById(id)].getNonse());
+			System.out.println("Hi from Verify REQ2!\n");
+			if(!verified){
+				removeClient(id);
+			}
+			else{
+				CCs[getClientById(id)].send("REQ69");
+				CCs[getClientById(id)].createGUI();
+			}
+			
+		}
+		else if(request.contains("REQ69")){
+			CCs[getClientById(id)].createGUI();
+			
 		}
 	}
 	public void run() {
@@ -60,7 +78,12 @@ public class ClientPassive implements Runnable{
 		}
 	}
 	public void newCommunicationThread(Socket sock, int option, SecureConnection secureConn) {
-		CCs[numClients] = new ClientCommunicationThread(this, sock, option, secureConn);
+		if(secureConn == null){
+			CCs[numClients] = new ClientCommunicationThread(this, sock, option);
+		}
+		else{
+			CCs[numClients] = new ClientCommunicationThread(this, sock, option, secureConn);
+		}
 		try{
 			CCs[numClients].openBuffer();
 			CCs[numClients].start();

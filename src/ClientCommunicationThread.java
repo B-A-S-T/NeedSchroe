@@ -17,7 +17,27 @@ public class ClientCommunicationThread extends Thread{
 	private String targetData;
 	private String sessionKey;
 	private int nonse;
+	private Encryption crypt;
 
+	public ClientCommunicationThread(ClientPassive clientPassive, Socket sock, int option, SecureConnection secureConn) {
+		id = sock.getPort();
+		passive = clientPassive;
+		this.sock = sock;
+		this.option = option;
+		targetData = secureConn.getTargetData();
+		sessionKey = secureConn.getKey();
+		username = secureConn.getTarget();
+	}
+	public ClientCommunicationThread(ClientPassive clientPassive, Socket sock, int option) {
+		id = sock.getPort();
+		passive = clientPassive;
+		this.sock = sock;
+		this.option = option;
+	}
+	public void createGUI(){
+		gui = new ChatGUI(this, username);
+	}
+	
 	public int getNonse() {
 		return nonse;
 	}
@@ -31,16 +51,20 @@ public class ClientCommunicationThread extends Thread{
 			request = "REQ0 " + targetData;
 			send(request);
 		}
-		System.out.println(request + "\n\n");
+		System.out.println("I just sent this: " + request + "\n\n");
 		while(!sessionFinished){
 			try{
 				request = in.readUTF();
+				System.out.println("I just received this: " + request + "\n\n");
 				if(request.contains("REQ")){
 					passive.verify(id, request);
 				}
-				gui.appendMessage(request);	
+				else{
+					crypt = new Encryption(sessionKey);
+					gui.appendMessage(crypt.decrypt(request), username);	
+				}
 			}catch(IOException exception){
-				System.out.println("Failed to receive" + exception);
+				System.out.println("Failed to receive " + exception);
 				passive.removeClient(id);
 				stop();
 			}
@@ -48,16 +72,6 @@ public class ClientCommunicationThread extends Thread{
 	}
 	public int getID(){
 		return id;
-	}
-	public ClientCommunicationThread(ClientPassive clientPassive, Socket sock, int option, SecureConnection secureConn) {
-		id = sock.getPort();
-		passive = clientPassive;
-		this.sock = sock;
-		gui = new ChatGUI(this);
-		this.option = option;
-		targetData = secureConn.getTargetData();
-		sessionKey = secureConn.getKey();
-		username = secureConn.getTarget();
 	}
 
 	public void openBuffer() throws IOException {
@@ -76,6 +90,10 @@ public class ClientCommunicationThread extends Thread{
 		sessionKey = key;
 	}
 	public void send(String toSend) {
+		if(!toSend.contains("REQ")){
+			crypt = new Encryption(sessionKey);
+			toSend = crypt.encrypt(toSend);
+		}
 		try {
 			out.writeUTF(toSend);
 			out.flush();

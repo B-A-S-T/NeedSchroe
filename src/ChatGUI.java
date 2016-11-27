@@ -13,7 +13,8 @@ public class ChatGUI extends JFrame implements ActionListener, WindowListener {
 	private JLabel label;
 	private ClientCommunicationThread comm = null;
 	
-	public ChatGUI(ClientCommunicationThread newComm){
+	public ChatGUI(ClientCommunicationThread newComm, String name){
+		this.setTitle(name);
 		comm = newComm;
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(400,400);
@@ -21,6 +22,7 @@ public class ChatGUI extends JFrame implements ActionListener, WindowListener {
 		label = new JLabel("Enter Text");
 		letter = new JTextField(20);// accepts upto 10 characters
 		send = new JButton("Send");
+		send.addActionListener(this);
 		panel.add(label);// Components Added using Flow Layout
 		panel.add(letter);
 		panel.add(send);
@@ -31,11 +33,13 @@ public class ChatGUI extends JFrame implements ActionListener, WindowListener {
 		this.getContentPane().add(BorderLayout.CENTER,message);
 		this.setVisible(true);
 	}
-	public void appendMessage(String newMessage){
-		message.setText(newMessage);
+	public void appendMessage(String newMessage, String name){
+		message.append("\n" + name + ": " + newMessage);
 	}
 	public void actionPerformed(ActionEvent e) {
 		String toSend = letter.getText();
+		letter.setText("");
+		appendMessage(toSend, "Me");
 		comm.send(toSend);
 	}
 	

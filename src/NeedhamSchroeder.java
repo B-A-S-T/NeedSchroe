@@ -61,10 +61,10 @@ public class NeedhamSchroeder {
 		return encryption.encrypt("" + newNonse);
 	}
 	
-	public boolean Stage4(String key, String request, int nonse) {
+	public boolean stage4(String key, String request, int nonse) {
 		Encryption encryption = new Encryption(key);
 		String unencrypted = encryption.decrypt(request.substring(4, request.length()));
-		if(nonse == Integer.parseInt(unencrypted)){
+		if((nonse - 1) == Integer.parseInt(unencrypted)){
 			return true;
 		}
 		return false;
