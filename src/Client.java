@@ -143,7 +143,7 @@ import java.util.Scanner;
 		nonse = reader.nextInt();
 		crypt = new Encryption(passiveClient.getKey());
 		String request = "NSC @" + source + "%" + target + "#" + nonse;
-		System.out.println("Just sent, Unencrypted: " + request);
+		System.out.println("Just sent request for key to central authority, Unencrypted: " + request);
 		send(request);
 		String reply = receive();
 		String decryptedReply = crypt.decrypt(reply);

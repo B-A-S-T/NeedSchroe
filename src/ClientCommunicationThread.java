@@ -49,6 +49,7 @@ public class ClientCommunicationThread extends Thread{
 		String request = null;
 		if(option == 1){
 			request = "REQ0 " + targetData;
+			System.out.println("Sending data encrypted with client 2 interchange key" + request);
 			send(request);
 		}
 		while(!sessionFinished){

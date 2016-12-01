@@ -137,7 +137,7 @@ public class CentralAuthority implements Runnable{
 			String sourceKey = getKeyByUser(request.substring(request.indexOf('@') + 1, request.indexOf('%')));
 			String targetKey = getKeyByUser(request.substring(request.indexOf('%') + 1, request.indexOf('#')));
 			NeScInfo info = ns.stage1(0, request, new Encryption(sourceKey), new Encryption(targetKey));
-			System.out.println("Sending encrypted: " + info.getServerPacket());
+			System.out.println("Sending response packet for key encrypted: " + info.getServerPacket());
 			newClients[getClientById(id)].send(info.getServerPacket());
 		}
 		if(request.contains("IP ")){

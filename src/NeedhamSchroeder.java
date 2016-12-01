@@ -47,7 +47,7 @@ public class NeedhamSchroeder {
 		info.setKey(unencrypted.substring(unencrypted.indexOf('|') + 1, unencrypted.length()));
 		Encryption newEncryption = new Encryption(info.getKey());
 		info.setNonse(generateNonse());
-		System.out.println("Sent unencrypted: REQ1" + info.getNonse());
+		System.out.println("Sent nonse to client who initiated unencrypted: REQ1" + info.getNonse());
 		info.setServerPacket(newEncryption.encrypt("" + info.getNonse()));
 		
 		return info;
@@ -56,7 +56,7 @@ public class NeedhamSchroeder {
 		Encryption encryption = new Encryption(key);
 		String unencrypted = encryption.decrypt(request.substring(4, request.length()));
 		int newNonse = (Integer.parseInt(unencrypted)) - 1;
-		System.out.println("Sent unencrypted: REQ2" + newNonse);
+		System.out.println("Sent new nonse to client 2 unencrypted: REQ2" + newNonse);
 		return encryption.encrypt("" + newNonse);
 	}
 	
