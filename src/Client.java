@@ -63,7 +63,7 @@ import java.util.Scanner;
 		if(username.contains("Kayse")){passiveClient.setKey("Bacon");}
 		request = "0 @" + username + "*" + listenPort;
 		// Sends to server, writes name and IP to file
-		System.out.println("Just sent!\n\n");
+		System.out.println("Just sent unencrypted: " + request);
 		send(request);
 		// Get option
 		while(!request.contains("quit")){
@@ -141,19 +141,18 @@ import java.util.Scanner;
 		source = reader.nextLine();
 		target = reader.nextLine();
 		nonse = reader.nextInt();
-		if(source.contains("John")){crypt = new Encryption("Beers");}
+		crypt = new Encryption(passiveClient.getKey());
 		String request = "NSC @" + source + "%" + target + "#" + nonse;
-		System.out.println("Unencrypted: " + request);
+		System.out.println("Just sent, Unencrypted: " + request);
 		send(request);
 		String reply = receive();
 		String decryptedReply = crypt.decrypt(reply);
-		System.out.println("Unencrypted: " + decryptedReply);
+		System.out.println("Just received Unencrypted: " + decryptedReply);
 		NeScInfo info = nsProto.stage1(nonse, decryptedReply, crypt, null);
 		send("IP %" + info.getTarget());
 		reply = receive();
 		String targetIP = reply.substring(0, reply.indexOf('*'));
 		int port = Integer.parseInt(reply.substring(reply.indexOf('*') + 1));
-		System.out.println(targetIP);
 		secureConn[numConn] = 
 				new SecureConnection(info.getTarget(), 
 						targetIP, info.getKey(), port, info.getTargetData());

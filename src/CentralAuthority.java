@@ -123,7 +123,6 @@ public class CentralAuthority implements Runnable{
 
 	public synchronized void processRequest(int id, String request) {
 		String IP = newClients[getClientById(id)].getIP();
-		System.out.println("Hello there!" + IP);
 		if(request == "quit"){
 			newClients[getClientById(id)].send("Thank you.");
 			removeClient(id);
@@ -138,7 +137,7 @@ public class CentralAuthority implements Runnable{
 			String sourceKey = getKeyByUser(request.substring(request.indexOf('@') + 1, request.indexOf('%')));
 			String targetKey = getKeyByUser(request.substring(request.indexOf('%') + 1, request.indexOf('#')));
 			NeScInfo info = ns.stage1(0, request, new Encryption(sourceKey), new Encryption(targetKey));
-			System.out.println(info.getServerPacket());
+			System.out.println("Sending encrypted: " + info.getServerPacket());
 			newClients[getClientById(id)].send(info.getServerPacket());
 		}
 		if(request.contains("IP ")){

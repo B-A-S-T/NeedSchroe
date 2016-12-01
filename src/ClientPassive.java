@@ -1,6 +1,8 @@
 import java.io.IOException;
 import java.net.*;
 
+import javax.swing.plaf.synth.SynthSeparatorUI;
+
 public class ClientPassive implements Runnable{
 	private ServerSocket serverSock;
 	private Thread thread;
@@ -25,9 +27,7 @@ public class ClientPassive implements Runnable{
 	}
 	public synchronized void verify(int id, String request) {
 		NeedhamSchroeder nesc = new NeedhamSchroeder(0);
-		System.out.println("Hi from Verify!\n");
 		if(request.contains("REQ0")){
-			System.out.println("Hi from Verify REQ0!\n");
 			nescInfo = nesc.stage2(request, new Encryption(serverKey));
 			CCs[getClientById(id)].setNonse(nescInfo.getNonse());;
 			CCs[getClientById(id)].setSessionKey(nescInfo.getKey());
@@ -35,27 +35,25 @@ public class ClientPassive implements Runnable{
 			CCs[getClientById(id)].send("REQ1"+nescInfo.getServerPacket());
 		}
 		else if(request.contains("REQ1")){
-			System.out.println("Hi from Verify REQ1!\n");
 			String sessionKey = CCs[getClientById(id)].getSessionKey();
 			String nonse = nesc.stage3(sessionKey, request);
 			CCs[getClientById(id)].send("REQ2"+nonse);
-			System.out.println("Successfully sent from REQ1");
 			
 		}
 		else if(request.contains("REQ2")){
-			System.out.println("Hi from Verify REQ2!\n");
 			boolean verified = nesc.stage4(CCs[getClientById(id)].getSessionKey(), request, CCs[getClientById(id)].getNonse());
-			System.out.println("Hi from Verify REQ2!\n");
 			if(!verified){
 				removeClient(id);
 			}
 			else{
+				System.out.println("That nonse is correct, verify completed, generating chat");
 				CCs[getClientById(id)].send("REQ69");
 				CCs[getClientById(id)].createGUI();
 			}
 			
 		}
 		else if(request.contains("REQ69")){
+			System.out.println("Verify complete, generating chat");
 			CCs[getClientById(id)].createGUI();
 			
 		}
@@ -129,5 +127,8 @@ public class ClientPassive implements Runnable{
 	}
 	public void setKey(String key) {
 		serverKey = key;
+	}
+	public String getKey(){
+		return serverKey;
 	}
 }

@@ -51,11 +51,10 @@ public class ClientCommunicationThread extends Thread{
 			request = "REQ0 " + targetData;
 			send(request);
 		}
-		System.out.println("I just sent this: " + request + "\n\n");
 		while(!sessionFinished){
 			try{
 				request = in.readUTF();
-				System.out.println("I just received this: " + request + "\n\n");
+				System.out.println("I just received this: " + request);
 				if(request.contains("REQ")){
 					passive.verify(id, request);
 				}
@@ -91,10 +90,12 @@ public class ClientCommunicationThread extends Thread{
 	}
 	public void send(String toSend) {
 		if(!toSend.contains("REQ")){
+			System.out.println("Sent unencrypted: " + toSend);
 			crypt = new Encryption(sessionKey);
 			toSend = crypt.encrypt(toSend);
 		}
 		try {
+			System.out.println("Sent encrypted: " + toSend);
 			out.writeUTF(toSend);
 			out.flush();
 		} catch (IOException e1) {

@@ -1,6 +1,8 @@
 import java.net.Socket;
 import java.util.Random;
 
+import javax.swing.plaf.synth.SynthSeparatorUI;
+
 public class NeedhamSchroeder {
 	
 	public NeedhamSchroeder(int type) {
@@ -20,12 +22,9 @@ public class NeedhamSchroeder {
 					Integer.parseInt(decryptedReply.substring(decryptedReply.indexOf('#') + 1, decryptedReply.indexOf('|')))); 
 			info.setKey(decryptedReply.substring(decryptedReply.indexOf('|') + 1, decryptedReply.indexOf('~')));
 			info.setTargetData(decryptedReply.substring(decryptedReply.indexOf('~') + 1, decryptedReply.length()));
-			System.out.println(info.getSource() + " " + info.getTarget() + " " 
-			+ info.getNonse()+ " " + info.getKey() + " " + info.getTargetData());
 		} 
 		//Server Stage one
 		if(type == 1){
-			System.out.println(CS.getKey() + "   " + TS.getKey());
 			info.setSource(decryptedReply.substring(decryptedReply.indexOf('@') + 1, decryptedReply.indexOf('%')));
 			info.setTarget(decryptedReply.substring(decryptedReply.indexOf('%') + 1, decryptedReply.indexOf('#')));
 			info.setNonse(Integer.parseInt(decryptedReply.substring(decryptedReply.indexOf('#') + 1, decryptedReply.length())));
@@ -42,14 +41,13 @@ public class NeedhamSchroeder {
 	}
 
 	public NeScInfo stage2(String request, Encryption encryption) {
-		System.out.println(request + "\n\n");
 		String unencrypted = encryption.decrypt(request.substring(5, request.length()));
-		System.out.println(unencrypted + "\n\n" + unencrypted);
 		NeScInfo info = new NeScInfo();
 		info.setSource(unencrypted.substring(unencrypted.indexOf('@') + 1, unencrypted.indexOf('|')));
 		info.setKey(unencrypted.substring(unencrypted.indexOf('|') + 1, unencrypted.length()));
 		Encryption newEncryption = new Encryption(info.getKey());
 		info.setNonse(generateNonse());
+		System.out.println("Sent unencrypted: REQ1" + info.getNonse());
 		info.setServerPacket(newEncryption.encrypt("" + info.getNonse()));
 		
 		return info;
@@ -58,6 +56,7 @@ public class NeedhamSchroeder {
 		Encryption encryption = new Encryption(key);
 		String unencrypted = encryption.decrypt(request.substring(4, request.length()));
 		int newNonse = (Integer.parseInt(unencrypted)) - 1;
+		System.out.println("Sent unencrypted: REQ2" + newNonse);
 		return encryption.encrypt("" + newNonse);
 	}
 	
