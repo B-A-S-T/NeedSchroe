@@ -1,0 +1,62 @@
+# NeedSchroe
+Creates a XOR encryption connection between two clients.
+Implements the Needham Schroeder Protocol that envolves a Central Authority to generate a session key.
+
+Use case:
+Enter your username
+----Your username and interchange key must be included in "userKeys.txt"
+----The server uses this file to read in all interchange keys 
+
+NSC- Get a new session key from the Central Authority Server
+LCSC - List out your current users that you have a session key with
+SOSC - Create a chat connection with user you have already gotten a session key for
+
+Implementation notes:
+The client should have the file "TOPSECRET.txt" in the same dir as the build.
+This file contains three users, but should only contain the username and Key between the client and the Central Authority Server if
+  testing nonlocal.
+Had to create dynamic port numbers for testing locally and had to save IP addresses evertime connection with Central Server occured
+  in order to know where other clients are.
+  
+   Protocol notes:
+   0 new user
+   @ Source
+   % Target
+   # Nonse
+   | Session key
+   ~ Data encrypted with interchange key of target
+   
+   
+   Communication between two clients:
+   REQ0 Data encrypted with interchange key, first sent to a client waiting for connections
+   REQ1 Has the from the client waiting for connection
+   REQ2 Has the nonse with the function applied from the client who initiated the connection
+   REQ69 Nonse has been verified, verification code
+
+
+Builds Files:
+----Central Authority server---
+CentralAuthority.java
+CentralAuthorityThread.java
+Encryption.java
+NeedhamSchroeder.java
+NeScInfo.java
+
+----Client----
+Client.java
+ClientGUI.java
+ClientCommunicationThread.java
+Encryption.java
+NeedhamSchroeder.java
+NeScInfo.java
+SecureConnection.java
+
+
+May have missed one, just build all of them together.
+
+Arguments:
+CentralAuthority.java: "port number"
+Client.java: "host" "port number"
+
+Link to demo:
+https://drive.google.com/file/d/0B3pFsLs7PWqvRWlURG12UzhNUFk/view?usp=sharing
